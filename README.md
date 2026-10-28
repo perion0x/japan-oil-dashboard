@@ -2,7 +2,7 @@
 
 An interactive dashboard on how Japan got through the 2026 Strait of Hormuz closure, and what the switch from Middle East to US crude means for refinery output and hedging.
 
-**Live site:** `https://<your-username>.github.io/<repo-name>/` (after GitHub Pages is turned on, see below)
+**Live site:** https://perion0x.github.io/japan-oil-dashboard/
 
 ## What's inside
 
