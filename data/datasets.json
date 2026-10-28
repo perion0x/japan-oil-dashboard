@@ -1,0 +1,91 @@
+{
+  "params": {
+    "group": "Crude & stockpiles"
+  },
+  "datasets": {
+    "crude_monthly": {
+      "title": "Crude imports and price",
+      "description": "Monthly crude oil imports (MOF customs, via PAJ table 03) in mb/d, CIF unit value in $/bbl, yen per dollar, and fuel product output (PAJ table 02) in kb/d, Jan 2024 \u2013 Aug 2026.",
+      "file": "data/crude_monthly.csv",
+      "updated": "2026-10-11"
+    },
+    "crude_origin_aug2026": {
+      "title": "Crude imports by country, Aug 2026",
+      "description": "Japan crude imports by country in August 2026 (METI, via Arab News Japan), converted to kb/d, with each country's typical export crude quality (indicative; not reported in trade data).",
+      "file": "data/crude_origin_aug2026.csv",
+      "updated": "2026-10-11"
+    },
+    "crude_origin_monthly": {
+      "title": "Crude imports by origin, monthly",
+      "description": "Japan crude imports April\u2013August 2026 (total and from the US, kb/d) and Middle East share, from METI data as reported in the press; 2025 baseline from Platts. Each row names its source.",
+      "file": "data/crude_origin_monthly.csv",
+      "updated": "2026-10-11"
+    },
+    "exports_monthly": {
+      "title": "Product exports by month",
+      "description": "Monthly exports of gasoil, gasoline, jet fuel and fuel oil B/C in kb/d (PAJ table 02), Jan 2025 \u2013 Aug 2026.",
+      "file": "data/exports_monthly.csv",
+      "updated": "2026-10-11"
+    },
+    "grade_slate": {
+      "title": "Yields at a cracking refinery",
+      "description": "Indicative product yields, % of crude by weight, for WTI Light, Arab Light (Upper Zakum stand-in), Murban and Oman at a cracking-type refinery (crude unit, vacuum unit, FCC, no coker), from the crude yield model built on TotalEnergies and ExxonMobil assays.",
+      "file": "data/grade_slate.json",
+      "updated": "2026-10-14"
+    },
+    "headline": {
+      "title": "Headline figures",
+      "description": "Key 2026 figures computed from PAJ tables 02, 03 and 05: crude import low and price peak, government reserve draw, sales change, end-August stocks and net product trade.",
+      "file": "data/headline.csv",
+      "updated": "2026-10-11"
+    },
+    "mix_check": {
+      "title": "Product mix: model vs PAJ",
+      "description": "Share of refinery output by product group. Model: cracking-type yields for an assumed 2025 slate (Middle East split evenly between Arab Light and Murban types, 4.5% WTI) and the August 2026 METI slate (Saudi, Kuwait, Qatar as Arab Light; UAE as Murban; US as WTI; others as Oman). Actual: PAJ refinery production, May\u2013August 2025 and 2026, by volume.",
+      "file": "data/mix_check.json",
+      "updated": "2026-10-14"
+    },
+    "net_trade": {
+      "title": "Net product trade",
+      "description": "Average product imports, exports and net trade in kb/d for Jan\u2013Aug 2026, with net trade for Jan\u2013Aug 2025 (PAJ table 02).",
+      "file": "data/net_trade.csv",
+      "updated": "2026-10-11"
+    },
+    "range_long": {
+      "title": "Monthly series 2021\u20132026",
+      "description": "Monthly values for 2021 to the latest 2026 month: crude imports, CIF price and yen rate (MOF via PAJ table 03), stockpile days (PAJ table 05), and production, domestic sales, imports, exports (kb/d) and inventories (million kl) by product (PAJ table 02).",
+      "file": "data/range_long.csv",
+      "updated": "2026-10-11"
+    },
+    "refinery_config": {
+      "title": "Refinery unit capacities",
+      "description": "Published unit capacities (b/d) for Idemitsu Aichi, Hokkaido and Chiba (as of April 2026) and Taiyo Oil Shikoku (as of November 2022), from the operators' websites, with conversion and residue desulfurization as a share of crude distillation.",
+      "file": "data/refinery_config.csv",
+      "updated": "2026-10-11"
+    },
+    "refining_capacity": {
+      "title": "Refining capacity by refinery",
+      "description": "Designed crude capacity of Japan's 19 refineries at end April 2026 in b/d (PAJ table 04); group by parent company is Claude's classification.",
+      "file": "data/refining_capacity.csv",
+      "updated": "2026-10-11"
+    },
+    "sales_change": {
+      "title": "Fuel sales change by product",
+      "description": "Change in domestic sales by product: FY2016 to FY2025, and Apr\u2013Aug 2026 against Apr\u2013Aug 2025 (PAJ table 02), with FY2025 volume in kb/d.",
+      "file": "data/sales_change.csv",
+      "updated": "2026-10-11"
+    },
+    "stockpile_days": {
+      "title": "Oil stockpiles by holder",
+      "description": "End-month oil stockpiles in days of consumption held by government, private companies and producer joint storage (PAJ table 05), Jan 2025 \u2013 Jul 2026.",
+      "file": "data/stockpile_days.csv",
+      "updated": "2026-10-11"
+    },
+    "stocks_august": {
+      "title": "End-August product stocks",
+      "description": "Commercial product inventories at the end of August, 2017\u20132026, million kl (PAJ table 02).",
+      "file": "data/stocks_august.csv",
+      "updated": "2026-10-11"
+    }
+  }
+}

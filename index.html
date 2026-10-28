@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Japan Oil Market Dashboard</title>
+<meta name="description" content="How Japan got through the 2026 Strait of Hormuz closure: crude imports, stockpiles, refinery output, the switch to US crude, and the hedging needs it creates.">
+<meta property="og:title" content="Japan Oil Market Dashboard">
+<meta property="og:description" content="How Japan got through the 2026 Strait of Hormuz closure: crude imports, stockpiles, refinery output, the switch to US crude, and the hedging needs it creates.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6db3'/%3E%3Cpath d='M16 6c4 6 7 9.5 7 13a7 7 0 0 1-14 0c0-3.5 3-7 7-13z' fill='white'/%3E%3C/svg%3E">
+<style>
+/* Design tokens the dashboard page expects (light first, then dark). */
+:root {
+  --font-anthropic-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-anthropic-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 30px;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 14px; --cds-gap-lg: 20px; --cds-gap-xl: 28px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px; --cds-pad-xl: 24px;
+  --cds-radius: 8px; --cds-dur-slow: 240ms; --cds-ease-out: cubic-bezier(.2, .8, .2, 1);
+  --color-bg: #f6f6f3; --color-panel: #ffffff; --color-fg: #1d2025; --color-fg-muted: #5d6570;
+  --color-border-line: #e2e4e8; --color-ok: #1f7a4d; --color-warn: #a86400; --color-bad: #c0392b;
+  --cds-chart-grid: #eceef1; --cds-chart-axis: #9aa1a9; --cds-chart-muted: #c5cad0; --cds-chart-reference: #858c95;
+  --cds-chart-status-critical: #c0392b;
+  --cds-surface-popover: #ffffff; --cds-border: #d4d8dd; --cds-shadow-popover: 0 4px 14px rgba(20, 24, 30, .14);
+  --cds-text-secondary: #5d6570;
+  --c0: #2f6db3; --c1: #d9822b; --c2: #7a5cc2; --c3: #2a8a6a; --c4: #c94f7c; --c5: #8c6d4f; --c6: #6b8e23; --c7: #3a9ab0;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --color-bg: #121417; --color-panel: #1a1d21; --color-fg: #e7e9ec; --color-fg-muted: #9ba3ad;
+  --color-border-line: #2c3036; --color-ok: #4cc38a; --color-warn: #f0b04f; --color-bad: #f0776e;
+  --cds-chart-grid: #262a30; --cds-chart-axis: #5d646d; --cds-chart-muted: #4a5058; --cds-chart-reference: #7f868f;
+  --cds-chart-status-critical: #f0776e;
+  --cds-surface-popover: #23272c; --cds-border: #3a4048; --cds-shadow-popover: 0 4px 14px rgba(0, 0, 0, .5);
+  --cds-text-secondary: #9ba3ad;
+  --c0: #5b98e0; --c1: #f0a14f; --c2: #a38ae6; --c3: #4cb894; --c4: #e07aa0; --c5: #b8957a; --c6: #9cbf4f; --c7: #5fc0d2;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --color-bg: #121417; --color-panel: #1a1d21; --color-fg: #e7e9ec; --color-fg-muted: #9ba3ad;
+  --color-border-line: #2c3036; --color-ok: #4cc38a; --color-warn: #f0b04f; --color-bad: #f0776e;
+  --cds-chart-grid: #262a30; --cds-chart-axis: #5d646d; --cds-chart-muted: #4a5058; --cds-chart-reference: #7f868f;
+  --cds-chart-status-critical: #f0776e;
+  --cds-surface-popover: #23272c; --cds-border: #3a4048; --cds-shadow-popover: 0 4px 14px rgba(0, 0, 0, .5);
+  --cds-text-secondary: #9ba3ad;
+  --c0: #5b98e0; --c1: #f0a14f; --c2: #a38ae6; --c3: #4cb894; --c4: #e07aa0; --c5: #b8957a; --c6: #9cbf4f; --c7: #5fc0d2;
+  color-scheme: dark; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--color-bg); color: var(--color-fg); font: 14px/1.5 var(--font-anthropic-sans); -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+#dash-root { padding-block: 24px 16px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+@media (min-width: 900px) { #dash-root { padding-left: max(36px, env(safe-area-inset-left, 0px)); padding-right: max(36px, env(safe-area-inset-right, 0px)); } }
+.dash-skeleton { color: transparent !important; background: var(--cds-chart-grid); border-radius: 4px; }
+.site-foot { max-width: 78rem; margin: 8px auto 40px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); font-size: 13px; color: var(--color-fg-muted); }
+@media (min-width: 900px) { .site-foot { padding-left: max(36px, env(safe-area-inset-left, 0px)); padding-right: max(36px, env(safe-area-inset-right, 0px)); } }
+.site-foot h2 { font-size: 15px; color: var(--color-fg); font-weight: 600; margin: 0 0 8px; }
+.site-foot .src { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 10px 24px; margin: 0 0 18px; padding: 0; list-style: none; }
+.site-foot .src li { border-top: 1px solid var(--color-border-line); padding-top: 8px; }
+.site-foot .src b { color: var(--color-fg); font-weight: 600; }
+.site-foot a { color: var(--c0); }
+.site-foot .by { display: flex; flex-wrap: wrap; gap: 6px 16px; border-top: 1px solid var(--color-border-line); padding-top: 12px; }
+.theme-btn { font: inherit; font-size: 12px; color: var(--color-fg-muted); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+.theme-btn:focus-visible { outline: 2px solid var(--c0); outline-offset: 2px; }
+</style>
+<script src="vendor/d3.v7.9.0.min.js"></script>
+<script src="data.js"></script>
+<script>
+/* A small stand-in for the dashboard runtime the page was written against:
+   it serves the bundled data files, runs calculations, and redraws on resize. */
+(function () {
+  const RAW = window.DASH_DATA || {}, cache = {}, calcs = {}, subs = [];
+  let params = Object.assign({}, window.DASH_PARAMS || {});
+  function parse(id) {
+    if (cache[id]) return cache[id];
+    const r = RAW[id];
+    if (!r) return null;
+    let rows, columns;
+    if (r.format === 'csv') { rows = d3.csvParse(r.text); columns = rows.columns; rows = Array.from(rows); }
+    else { let j = JSON.parse(r.text); if (!Array.isArray(j)) j = j.rows || j.data || j.results || j; rows = j; columns = Array.isArray(j) && j[0] ? Object.keys(j[0]) : []; }
+    return (cache[id] = { status: 'ok', data: rows, rows, columns, meta: [], refreshing: false, message: '' });
+  }
+  function run(fn) { try { fn(); } catch (e) { console.error(e); } }
+  window.dash = {
+    colors: ['var(--c0)', 'var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)', 'var(--c6)', 'var(--c7)'],
+    data(id) {
+      const d = parse(id);
+      if (d) return d;
+      const c = calcs[id];
+      if (c) {
+        if (!c.out) { try { const v = c.fn(...c.inputs.map((i) => window.dash.data(i).data)); c.out = { status: 'ok', data: v, rows: v, columns: Array.isArray(v) && v[0] ? Object.keys(v[0]) : [], meta: [], refreshing: false, message: '' }; } catch (e) { console.error(e); c.out = { status: 'error', data: [], rows: [], columns: [], meta: [], message: String(e) }; } }
+        return c.out;
+      }
+      return { status: 'missing', data: [], rows: [], columns: [], meta: [], message: 'No data named ' + id };
+    },
+    calc(id, o) { calcs[id] = { inputs: o.inputs || [], fn: o.fn }; },
+    loader() {},
+    onData(fn) { subs.push(fn); run(fn); },
+    params() { return Object.assign({}, params); },
+    setParams(p) { params = Object.assign({}, params, p); subs.forEach(run); },
+    resetParams() { params = Object.assign({}, window.DASH_PARAMS || {}); subs.forEach(run); },
+    setLink(name) { try { history.replaceState(null, '', name ? '#' + name : location.pathname); } catch (e) {} },
+    refresh() {}
+  };
+  let lastW = 0, t = null;
+  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { const w = document.getElementById('dash-root').clientWidth; if (w !== lastW) { lastW = w; subs.forEach(run); } }, 150); });
+})();
+</script>
+</head>
+<body>
+<main id="dash-root">
+<style>
+.jo { display: grid; gap: var(--cds-gap-md); font-family: var(--font-anthropic-sans); color: var(--color-fg); max-width: 78rem; margin-inline: auto; }
+.jo h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+.jo h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.jo h3 { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); margin: 0; text-transform: uppercase; letter-spacing: .05em; color: var(--color-fg-muted); }
+.jo p { margin: 0; line-height: 1.55; }
+.jo .page b { font-weight: 600; color: var(--color-fg); }
+.jo-head { display: grid; gap: var(--cds-gap-xs); }
+.jo-meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jo-take { font-size: var(--cds-font-size-body); color: var(--color-fg-muted); max-width: 80ch; }
+.jo-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; display: grid; gap: var(--cds-gap-sm); align-content: start; }
+.jo-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; }
+.jo-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); }
+.jo-kpi .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jo-kpi .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 1.9rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.jo-kpi .unit { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jo-kpi .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.jo-kpi.alert { border-color: var(--color-bad); }
+.jo-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+.jo-sec { display: grid; gap: var(--cds-gap-sm); margin-top: var(--cds-gap-sm); }
+.jo-chart { position: relative; width: 100%; min-height: 300px; }
+.jo-chart svg { display: block; overflow: visible; }
+.jo-chart text { font-family: var(--font-anthropic-sans); }
+.jo-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jo-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.jo-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.jo-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; font-variant-numeric: tabular-nums; z-index: 3; }
+.jo-tip .d { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.jo-tablewrap { overflow-x: auto; }
+.jo-tablewrap.tall { max-height: 26rem; overflow-y: auto; }
+.jo table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+.jo th { text-align: left; font-weight: var(--cds-font-weight-medium); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); position: sticky; top: 0; background: var(--color-panel); }
+.jo td { padding: 6px var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+.jo tr:last-child td { border-bottom: 0; }
+.jo .r { text-align: right; }
+.jo .pos { color: var(--color-ok); }
+.jo .neg { color: var(--color-bad); }
+.jo tr.total td { font-weight: 600; }
+.jo-bar { display: flex; align-items: center; gap: 8px; min-width: 8rem; }
+.jo-bar .track { flex: 1; height: 8px; border-radius: 4px; background: var(--cds-chart-grid); overflow: hidden; }
+.jo-bar .fill { height: 100%; border-radius: 4px; }
+.jo-bar .v { min-width: 4.2rem; text-align: right; }
+.jo-views { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--cds-gap-md); }
+.jo-view { border-left: 3px solid var(--cds-chart-reference); padding-left: var(--cds-pad-sm); display: grid; gap: 4px; }
+.jo-view .t { font-weight: 600; font-size: var(--cds-font-size-body); }
+.jo-view p { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jo-fail { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: inherit; height: 100%; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.jo-fail span { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.jo [data-dash-source-state=empty] { color: transparent; }
+.jo [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (prefers-reduced-motion: no-preference) {
+  .jo-chart.drawn svg { animation: jo-in var(--cds-dur-slow) var(--cds-ease-out); }
+  @keyframes jo-in { from { opacity: 0; } to { opacity: 1; } }
+}
+
+.jo-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--color-border-line); flex-wrap: wrap; }
+.jo-tabs button, .jo-chips button { font: inherit; font-size: var(--cds-font-size-body); background: none; border: 0; color: var(--color-fg-muted); cursor: pointer; }
+.jo-tabs button { padding: 8px 12px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.jo-tabs button[aria-selected=true] { color: var(--color-fg); border-bottom-color: var(--jo-c0); font-weight: 600; }
+.jo-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.jo-chips button { padding: 5px 12px; border: 1px solid var(--color-border-line); border-radius: 999px; font-size: var(--cds-font-size-caption); }
+.jo-chips button[aria-pressed=true] { background: var(--jo-c0); border-color: var(--jo-c0); color: var(--color-bg); }
+.jo-tabs button:focus-visible, .jo-chips button:focus-visible { outline: 2px solid var(--jo-c0); outline-offset: 2px; }
+.jo-pg { display: grid; gap: var(--cds-gap-md); }
+.jo-hm { min-height: 600px; }
+.jo-sm { min-height: 420px; }
+</style>
+
+<div class="jo page">
+  <nav class="jo-tabs" role="tablist" aria-label="Dashboard pages">
+    <button role="tab" id="tab-overview" data-tab="overview" aria-selected="true">Overview</button>
+    <button role="tab" id="tab-range" data-tab="range" aria-selected="false">2026 vs 2021–25 range</button>
+    <button role="tab" id="tab-sourcing" data-tab="sourcing" aria-selected="false">Crude sourcing &amp; refinery fit</button>
+    <button role="tab" id="tab-hedging" data-tab="hedging" aria-selected="false">US crude: products &amp; hedging</button>
+  </nav>
+  <div class="jo-pg" id="overview">
+  <header class="jo-head" id="top">
+    <h1>Japan oil market</h1>
+    <div class="jo-meta">PAJ, METI and Ministry of Finance statistics · data through <span data-source="headline" data-field="data_through" data-row="0" class="dash-skeleton">—</span> · volumes converted at 6.2898 bbl per kl</div>
+    <p class="jo-take">Japan got through the 2026 Strait of Hormuz closure by drawing about <b data-source="headline" data-field="gov_draw_mb" data-row="0">—</b> million barrels of government crude while imports collapsed to <b data-source="headline" data-field="crude_low_mbd" data-row="0">—</b> mb/d. Refiners kept running, Japan turned net product exporter, and product stocks go into winter <b data-source="headline" data-field="stocks_aug_vs_avg_pct" data-row="0">—</b> against the August norm.</p>
+  </header>
+
+  <section class="jo-kpis" id="headline">
+    <div class="jo-card jo-kpi alert">
+      <div class="lbl">Crude imports, April low</div>
+      <div class="big"><span data-source="headline" data-field="crude_low_mbd" data-row="0" class="dash-skeleton">—</span> <span class="unit">mb/d</span></div>
+      <div class="sub">2025 avg <span data-source="headline" data-field="crude_2025_avg_mbd" data-row="0">—</span> · Aug <span data-source="headline" data-field="crude_latest_mbd" data-row="0">—</span></div>
+    </div>
+    <div class="jo-card jo-kpi">
+      <div class="lbl">Crude import price, June peak</div>
+      <div class="big">$<span data-source="headline" data-field="cif_peak_usd" data-row="0" class="dash-skeleton">—</span> <span class="unit">/bbl CIF</span></div>
+      <div class="sub">Feb $<span data-source="headline" data-field="cif_pre_crisis_usd" data-row="0">—</span> · Aug $<span data-source="headline" data-field="cif_latest_usd" data-row="0">—</span></div>
+    </div>
+    <div class="jo-card jo-kpi alert">
+      <div class="lbl">Government reserve, July</div>
+      <div class="big"><span data-source="headline" data-field="gov_days_jul" data-row="0" class="dash-skeleton">—</span> <span class="unit">days</span></div>
+      <div class="sub">From <span data-source="headline" data-field="gov_days_mar" data-row="0">—</span> in March · <span data-source="headline" data-field="gov_draw_mb" data-row="0">—</span> mb drawn</div>
+    </div>
+    <div class="jo-card jo-kpi">
+      <div class="lbl">Fuel sales, Apr–Aug vs 2025</div>
+      <div class="big" data-source="headline" data-field="sales_chg_apr_aug_pct" data-row="0">—</div>
+      <div class="sub">Crude imports lost Apr–Aug: <span data-source="headline" data-field="crude_lost_mb" data-row="0">—</span> mb</div>
+    </div>
+    <div class="jo-card jo-kpi alert">
+      <div class="lbl">Product stocks, end-Aug</div>
+      <div class="big"><span data-source="headline" data-field="stocks_aug_mkl" data-row="0" class="dash-skeleton">—</span> <span class="unit">m kl</span></div>
+      <div class="sub"><span data-source="headline" data-field="stocks_aug_vs_avg_pct" data-row="0">—</span> vs 2017–25 August average</div>
+    </div>
+    <div class="jo-card jo-kpi">
+      <div class="lbl">Net product exports, Jan–Aug</div>
+      <div class="big"><span data-source="headline" data-field="net_exports_2026_kbd" data-row="0" class="dash-skeleton">—</span> <span class="unit">kb/d</span></div>
+      <div class="sub">Same period 2025: <span data-source="headline" data-field="net_exports_2025_kbd" data-row="0">—</span> kb/d</div>
+    </div>
+  </section>
+
+  <section class="jo-card" id="supply-shock">
+    <h2>Supply shock: crude imports fell by more than half, prices rose by three-quarters</h2>
+    <p class="jo-note">Monthly crude imports (bars) and CIF import price (line). CIF prices are set at loading, so they lag spot by about a month. Product output is fuel products from Japanese refineries.</p>
+    <div class="jo-legend"><span><i style="background: var(--jo-muted)"></i>Crude imports, mb/d</span><span><i style="background: var(--jo-c0)"></i>Apr–May 2026</span><span><i style="background: var(--jo-c1); height: 3px"></i>CIF price, $/bbl</span><span><i style="background: var(--jo-c2); height: 3px"></i>Product output, mb/d</span></div>
+    <div class="jo-chart" id="chart-crude" data-source="crude_monthly"></div>
+  </section>
+
+  <div class="jo-grid2">
+    <section class="jo-card" id="stockpiles">
+      <h2>Stockpiles: the government reserve did the work</h2>
+      <p class="jo-note">Days of domestic consumption held, by holder. Releases began 16 March; the private obligation was cut from 70 to 55 days.</p>
+      <div class="jo-legend"><span><i style="background: var(--jo-c0)"></i>Government</span><span><i style="background: var(--jo-muted)"></i>Private</span><span><i style="background: var(--jo-muted); opacity: .45"></i>Producer joint storage</span></div>
+      <div class="jo-chart" id="chart-stockpile" data-source="stockpile_days"></div>
+    </section>
+    <section class="jo-card" id="demand">
+      <h2>Demand: a long decline, then the 2026 shock</h2>
+      <p class="jo-note">Change in domestic sales volume. Grey: FY2016 to FY2025. Blue: Apr–Aug 2026 against Apr–Aug 2025.</p>
+      <div class="jo-chart" id="chart-demand" data-source="sales_change"></div>
+    </section>
+  </div>
+
+  <div class="jo-grid2">
+    <section class="jo-card" id="exports">
+      <h2>Exports: gasoil and gasoline were cut, jet kept flowing</h2>
+      <p class="jo-note">Product exports, kb/d, Jan 2025 – Aug 2026, same scale in every panel. Shaded: Apr–May 2026.</p>
+      <div class="jo-chart" id="chart-exports" data-source="exports_monthly"></div>
+    </section>
+    <section class="jo-card" id="trade">
+      <h2>Net trade: Japan turned net product exporter</h2>
+      <p class="jo-note">Jan–Aug average, kb/d. Net = exports minus imports; negative means Japan buys more than it sells. Most of the swing is naphtha Japan stopped importing.</p>
+      <div class="jo-tablewrap">
+        <table data-source="net_trade" data-row-key="product" id="trade-table">
+          <thead><tr>
+            <th data-field="product">Product</th>
+            <th data-field="imports_2026_kbd" class="r">Imports 2026</th>
+            <th data-field="exports_2026_kbd" class="r">Exports 2026</th>
+            <th data-field="net_2026_kbd" class="r">Net 2026</th>
+            <th data-field="net_2025_kbd" class="r">Net 2025</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="jo-grid2">
+    <section class="jo-card" id="inventories">
+      <h2>Inventories: thin going into winter</h2>
+      <p class="jo-note">End-August commercial stocks, million kl. Bar: 2017–2025 August range · tick: average · dot: 2026. Bold labels are below the range.</p>
+      <div class="jo-chart" id="chart-stocks" data-source="stocks_august"></div>
+    </section>
+    <section class="jo-card" id="capacity">
+      <h2>Refining capacity: two groups hold most of it</h2>
+      <p class="jo-note">Designed crude capacity at end April 2026, b/d. Group by parent company is my own classification. Bar colour shows the group only, not operating status.</p>
+      <div class="jo-legend"><span><i style="background: var(--jo-c0)"></i>ENEOS group</span><span><i style="background: var(--jo-c1)"></i>Idemitsu group</span><span><i style="background: var(--jo-muted)"></i>Cosmo, Fuji Oil, Taiyo Oil</span></div>
+      <div class="jo-tablewrap tall">
+        <table data-source="refining_capacity" data-row-key="refinery_id" id="capacity-table">
+          <thead><tr>
+            <th data-field="refinery_id">Refinery</th>
+            <th data-field="group">Group</th>
+            <th data-field="area">Area</th>
+            <th data-field="capacity_bd">Capacity (b/d)</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="jo-card" id="views">
+    <h2>What it means for trading</h2>
+    <p class="jo-note">Analytical views drawn from the data above, not trade recommendations.</p>
+    <div class="jo-views">
+      <div class="jo-view"><div class="t">Crude: a reserve refill is coming</div><p>The state reserve is well below where it started the year. A refill schedule from METI would become a steady bid for crude delivered to North Asia and for VLCCs into Japan. Watch for announced volumes, timing and grades.</p></div>
+      <div class="jo-view"><div class="t">Crude: some diversification will stick</div><p>Before the war almost all of Japan's crude came from the Gulf. US and Caspian barrels filled the gap. Expect more long-haul Atlantic Basin cargoes to Japan than before, even after Hormuz reopens.</p></div>
+      <div class="jo-view"><div class="t">Middle distillates: fewer exports into winter</div><p>Jet and gasoil stocks sit near the bottom of their range while exports recovered strongly in July and August. Either exports ease or Japan buys prompt cargoes, which supports Singapore gasoil cracks and the jet–gasoil spread.</p></div>
+      <div class="jo-view"><div class="t">Kerosene: winter upside risk</div><p>Kerosene stocks are below normal for August. A cold winter would pull imports from Korea and Singapore back up after this year's drop.</p></div>
+      <div class="jo-view"><div class="t">Naphtha: a buyer will return</div><p>Japan's naphtha imports fell sharply as crackers cut runs, and its import price swung to a discount to crude. When petrochemical margins allow restarts, a large buyer comes back to the Asian naphtha market.</p></div>
+      <div class="jo-view"><div class="t">Fuel oil: a structural surplus</div><p>Domestic fuel oil B/C demand has collapsed over the decade, so Japan keeps exporting residue into Asian fuel oil and bunker markets whatever happens to crude.</p></div>
+    </div>
+  </section>
+
+  <p class="jo-note" id="method">Sources: Petroleum Association of Japan tables 02 (supply and demand, from METI), 03 (import volumes and prices, from MOF customs), 04 (refining capacity) and 05 (stockpiling). Context on the Hormuz closure and reserve releases from METI press releases of March and April 2026 and press reports. Fuel products = gasoline, naphtha, jet, kerosene, gasoil, fuel oils A and B/C. Inventories exclude strategic reserves.</p>
+  </div>
+
+  <div class="jo-pg" id="range" hidden>
+    <header class="jo-head">
+      <h1>2026 against the 2021–2025 range</h1>
+      <p class="jo-take">Every monthly series for January–August 2026 compared with the same month in 2021–2025. Blue means above the five-year average, orange below; an outlined cell is outside the five-year range altogether. The five years include a structural decline in demand, so some of the shortfall is trend, not just the 2026 shock.</p>
+    </header>
+    <section class="jo-card" id="range-heatmap-card">
+      <h2>Every series at a glance: % difference from the 2021–25 average</h2>
+      <div class="jo-legend"><span><i style="background: var(--jo-c0)"></i>Above average</span><span><i style="background: var(--jo-c1)"></i>Below average</span><span><i style="background: none; border: 1.5px solid var(--color-fg); width: 9px; height: 9px"></i>Outside the 2021–25 range</span></div>
+      <div class="jo-chart jo-hm" id="chart-heatmap" data-source="range_stats"></div>
+      <p class="jo-note">Flows in kb/d, inventories in million kl, stockpiles in days. Small series (fuel oil A, jet and gasoil imports) swing by large percentages on small volumes.</p>
+    </section>
+    <section class="jo-card" id="range-detail-card">
+      <h2 id="range-detail-title">Monthly detail</h2>
+      <div class="jo-chips" id="group-chips" role="group" aria-label="Series group"></div>
+      <div class="jo-legend"><span><i style="background: var(--jo-muted); opacity: .5; height: 10px"></i>2021–25 range</span><span><i style="background: var(--color-fg-muted); height: 2px"></i>2021–25 average (dashed)</span><span><i style="background: var(--jo-muted); height: 2px"></i>2025</span><span><i style="background: var(--jo-c0); height: 3px"></i>2026</span></div>
+      <div class="jo-chart jo-sm" id="chart-smallmult" data-source="range_stats"></div>
+    </section>
+  </div>
+
+  <div class="jo-pg" id="sourcing" hidden>
+    <header class="jo-head">
+      <h1>Crude sourcing: who replaced the Gulf barrels, and can refineries run them?</h1>
+      <p class="jo-take">US crude imports rose from <b data-source="crude_origin_monthly" data-field="us_kbd" data-where="period=2025 average">—</b> kb/d on average in 2025 to <b data-source="crude_origin_monthly" data-field="us_kbd" data-where="period=2026-08">—</b> kb/d in August 2026, almost level with Saudi Arabia. The Middle East's share of Japan's crude fell from <b data-source="crude_origin_monthly" data-field="middle_east_share_pct" data-where="period=2025 average">—</b>% to <b data-source="crude_origin_monthly" data-field="middle_east_share_pct" data-where="period=2026-08">—</b>%. Most of the replacement is light sweet crude, which Japanese refineries were not built around.</p>
+    </header>
+
+    <div class="jo-grid2">
+      <section class="jo-card" id="origin-monthly">
+        <h2>US crude filled the gap from May</h2>
+        <p class="jo-note">Japan crude imports by month, kb/d (METI data via press reports). Blue: from the United States. Labels: Middle East share of imports where reported.</p>
+        <div class="jo-legend"><span><i style="background: var(--jo-muted)"></i>Other origins</span><span><i style="background: var(--jo-c0)"></i>United States</span></div>
+        <div class="jo-chart" id="chart-origin-monthly" data-source="crude_origin_monthly"></div>
+      </section>
+      <section class="jo-card" id="origin-aug">
+        <h2>August 2026: imports by country and crude quality</h2>
+        <p class="jo-note">kb/d, from METI volumes in barrels. Crude quality is the typical export grade of each country, indicative only: trade data does not report grades.</p>
+        <div class="jo-legend" id="quality-legend"></div>
+        <div class="jo-chart" id="chart-origin-aug" data-source="crude_origin_aug2026"></div>
+      </section>
+    </div>
+
+    <section class="jo-card" id="refinery-fit">
+      <h2>Refinery configuration: units built to upgrade sour residue</h2>
+      <p class="jo-note">Unit capacities in b/d as published by the operators. Conversion = catalytic cracking plus hydrocracking as a share of crude distillation; residue desulfurization as a share of crude distillation. ENEOS, Cosmo, Fuji Oil and other operators do not publish unit-level data; ENEOS and Cosmo declined to comment on refinery specifications to Reuters in April 2026.</p>
+      <div class="jo-tablewrap">
+        <table data-source="refinery_config" data-row-key="refinery" id="config-table">
+          <thead><tr>
+            <th data-field="refinery">Refinery</th>
+            <th data-field="cdu_bd" class="r">Crude unit</th>
+            <th data-field="vacuum_bd" class="r">Vacuum</th>
+            <th data-field="resid_desulf_bd" class="r">Residue desulf.</th>
+            <th data-field="fcc_rfcc_bd" class="r">FCC / RFCC</th>
+            <th data-field="hydrocracker_bd" class="r">Hydrocracker</th>
+            <th data-field="conversion_pct_of_cdu">Conversion % of crude unit</th>
+            <th data-field="resid_desulf_pct_of_cdu" class="r">Resid desulf. %</th>
+            <th data-field="as_of">As of</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="jo-views">
+        <div class="jo-view"><div class="t">Designed for Middle East medium sour</div><p>Most Japanese refineries date from the 1960s–70s and were built to run Gulf crude. Residue desulfurizers and residue catalytic crackers need the heavy, sulphur-rich bottom of the barrel that light sweet crude does not provide.</p></div>
+        <div class="jo-view"><div class="t">Light sweet starves the upgrading units</div><p>Running more WTI raises naphtha and gasoline yields, cuts gasoil and jet, and leaves crackers short of feed. Refiners either blend with Gulf crude or buy vacuum gasoil and straight-run fuel oil to fill the units.</p></div>
+        <div class="jo-view"><div class="t">Some sites flex better than others</div><p>Taiyo Oil, with no residue desulfurizer, says it can run more than half its slate from outside the Middle East. Idemitsu cites equipment challenges. Rystad Energy puts the short-term ceiling for non-Gulf crude at roughly a third to a half of the slate, and Japan is already near the top of that range.</p></div>
+        <div class="jo-view"><div class="t">What it means for crude origination</div><p>Light sweet is close to its technical limit in Japan. The next long-term opportunity is medium-gravity crude, sour or low-sulphur, that fills residue units without Hormuz risk: Mexican and Ecuadorian grades, Brazilian pre-salt, or Gulf barrels loading outside the Strait.</p></div>
+      </div>
+    </section>
+
+    <p class="jo-note" id="sourcing-sources">Sources: METI crude import data as reported by <a href="https://www.spglobal.com/energy/en/news-research/latest-news/crude-oil/060226-japan-pivots-to-us-crude-as-april-imports-hit-record-low" target="_blank" rel="noopener">S&amp;P Global (April)</a>, <a href="https://www.bairdmaritime.com/shipping/tankers/us-oil-supplies-help-offset-falling-middle-eastern-imports-to-japan" target="_blank" rel="noopener">Baird Maritime (May)</a>, <a href="https://www.bitget.com/news/detail/12560605584396" target="_blank" rel="noopener">Zhitong (June)</a>, <a href="https://www.investing.com/news/economy-news/japans-crude-oil-imports-climb-17-in-july-on-us-supplies-93CH-4882571" target="_blank" rel="noopener">Investing.com (July)</a>, <a href="https://www.arabnews.jp/en/business/saudi-arabia-leads-japans-oil-imports-in-august-us-share-surges-3000496" target="_blank" rel="noopener">Arab News Japan (August)</a>; 2025 baseline from <a href="https://www.hellenicshippingnews.com/japanese-refiners-us-crude-appetite-intact-despite-rising-sweet-crude-premiums/" target="_blank" rel="noopener">Platts</a>. Refinery units from <a href="https://www.idemitsu.com/jp/business/factory/aichi/ability/index.html" target="_blank" rel="noopener">Idemitsu</a> and <a href="https://www.taiyooil.net/corporate/business/shikoku/capacity/" target="_blank" rel="noopener">Taiyo Oil</a>. Configuration constraints from <a href="https://hydrocarbonprocessing.com/news/2026/04/japan-refiners-run-at-two-thirds-capacity-awaiting-crude-from-outside-the-gulf/" target="_blank" rel="noopener">Reuters via Hydrocarbon Processing</a>, <a href="https://www.argusmedia.com/en/news-and-insights/latest-market-news/2814224-asian-refineries-to-run-less-efficiently-on-crude-shift" target="_blank" rel="noopener">Argus</a> and <a href="https://eneken.ieej.or.jp/data/12998.pdf" target="_blank" rel="noopener">IEEJ</a>. METI and Ministry of Finance totals differ slightly (arrival vs customs timing).</p>
+  </div>
+  <div class="jo-pg" id="hedging" hidden>
+    <div class="jo-card" id="hedge-intro">
+      <h2>US crude: what changes in the products, and what needs hedging</h2>
+      <p class="jo-take">In August 2026 the United States supplied <b data-source="crude_origin_aug2026" data-field="share_pct" data-where="country=United States">—</b>% of Japan's crude, and the Middle East's share fell from <b data-source="crude_origin_monthly" data-field="middle_east_share_pct" data-where="period=2025 average">—</b>% in 2025 to <b data-source="crude_origin_monthly" data-field="middle_east_share_pct" data-where="period=2026-08">—</b>%. WTI is a different barrel from Arab Light: lighter, sweeter, priced off a different benchmark and shipped from the other side of the world. This page asks two questions: did Japan's refinery output change, and what new price risks do refiners now carry?</p>
+    </div>
+
+    <div class="jo-grid2">
+      <div class="jo-card" id="grade-slate">
+        <h2>On paper, WTI makes more gasoline and much less fuel oil</h2>
+        <p class="jo-note">Indicative product yields at a Japanese-style cracking refinery (crude unit, vacuum unit and FCC, no coker), % of crude by weight. From the crude yield model using published assays; Arab Light has no free assay, so Upper Zakum stands in.</p>
+        <div class="jo-chart" id="chart-grade-slate" data-source="grade_slate"></div>
+        <div class="jo-legend" id="grade-slate-legend"></div>
+      </div>
+      <div class="jo-card" id="mix-check">
+        <h2>In practice, Japan's output barely moved</h2>
+        <p class="jo-note">Change in each product's share of refinery output, percentage points. Expected: the model, 2025 slate against the August 2026 slate. Actual: PAJ refinery production, May–August 2026 against May–August 2025.</p>
+        <div class="jo-chart" id="chart-mix-check" data-source="mix_change"></div>
+        <div class="jo-legend" id="mix-check-legend"></div>
+      </div>
+    </div>
+
+    <div class="jo-card" id="why-flat">
+      <h2>Why the product mix held</h2>
+      <div class="jo-views">
+        <div class="jo-view"><span class="t">Government crude filled the gap</span><p>Japan drew about <b data-source="headline" data-field="gov_draw_mb" data-row="0">—</b> million barrels from its stockpile. That oil is mostly Gulf crude, so refiners kept running a familiar sour slate while imports changed.</p></div>
+        <div class="jo-view"><span class="t">US barrels went where they fit</span><p>Sites without residue desulfurizers, such as Taiyo Oil, can take more light sweet crude. Others blend it with Gulf crude to keep their residue units fed.</p></div>
+        <div class="jo-view"><span class="t">The switch is recent</span><p>US volumes only became large from May, so a full product shift may not show yet. Watch PAJ's monthly production: a rising gasoline and naphtha share with falling fuel oil B/C would mean the slate is really changing.</p></div>
+        <div class="jo-view"><span class="t">What this means</span><p>So far the new exposure is mostly on the crude side (price basis, voyage time, freight, currency), not on the product side. If US crude stays, the product exposure follows.</p></div>
+      </div>
+      <p class="jo-note">Model yields are by weight and PAJ output is by volume, so compare the direction and size of the changes, not the levels.</p>
+    </div>
+
+    <div class="jo-card" id="exposures">
+      <h2>New exposures for a Japanese refiner buying US crude, and the hedge for each</h2>
+      <div class="jo-tablewrap">
+        <table>
+          <thead><tr><th>Exposure</th><th>What changed</th><th>Who carries it</th><th>Hedge</th></tr></thead>
+          <tbody>
+            <tr><td><b>Crude price basis</b></td><td>Gulf crude is priced off Dubai/Oman through Saudi and Abu Dhabi official selling prices. US crude is priced off WTI. Product prices in Asia still move with Dubai, so the refiner is exposed to the WTI–Dubai spread.</td><td>Refiners buying WTI cargoes</td><td>WTI–Dubai or Brent–Dubai swaps (the EFS), Dubai swaps against WTI futures</td></tr>
+            <tr><td><b>Time on the water</b></td><td>A US Gulf Coast cargo takes roughly two to three times as long to reach Japan as a Gulf cargo, so the price can move further between buying and refining.</td><td>Refiners and traders holding cargoes in transit</td><td>Fixed-price or average-price swaps over the voyage and pricing period</td></tr>
+            <tr><td><b>Freight</b></td><td>Longer routes on VLCCs whose rates swung sharply in 2026. Freight is now a bigger part of the delivered cost.</td><td>Whoever charters the ship (refiner or seller, depending on terms)</td><td>Freight forward agreements on the US Gulf to Asia VLCC route</td></tr>
+            <tr><td><b>Product margin</b></td><td>If the slate gets lighter, refiners make more gasoline and naphtha and less fuel oil, so margins depend more on those cracks.</td><td>Refiners, once the product mix shifts</td><td>Gasoline and naphtha crack swaps (Singapore 92 RON, Japan naphtha)</td></tr>
+            <tr><td><b>Residue unit feed</b></td><td>Light sweet crude leaves residue desulfurizers and residue crackers short of feed, so refiners blend sour crude or buy heavy feedstock.</td><td>Refiners with residue units</td><td>Fuel oil swaps on the feedstock they buy; term supply of medium sour crude</td></tr>
+            <tr><td><b>Currency</b></td><td>Crude is paid in dollars and most products are sold in yen, while the yen was weak in 2026.</td><td>All importers</td><td>Dollar–yen forwards (an FX desk product)</td></tr>
+            <tr><td><b>Working capital</b></td><td>Longer voyages mean more oil and money tied up in transit.</td><td>Refiners and trading houses</td><td>In-transit and inventory financing, supply intermediation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="jo-note">Illustrations of where risk moves when the slate changes, not a description of any firm's current hedges. Who carries freight and timing risk depends on the sale terms (FOB or delivered).</p>
+    </div>
+
+    <div class="jo-card" id="who-japan">
+      <h2>Who to talk to</h2>
+      <div class="jo-views">
+        <div class="jo-view"><span class="t">Refiners</span><p>ENEOS, Idemitsu, Cosmo, Taiyo Oil and Fuji Oil: WTI–Dubai spread hedges, voyage price hedges, and crack swaps if the product mix moves.</p></div>
+        <div class="jo-view"><span class="t">Trading houses</span><p>Japanese trading houses that buy US crude for delivery: freight hedges and in-transit financing.</p></div>
+        <div class="jo-view"><span class="t">US sellers</span><p>Producers and exporters placing WTI into Japan: delivered pricing, freight and credit structures.</p></div>
+        <div class="jo-view"><span class="t">Medium sour suppliers</span><p>Mexico, Ecuador, Brazil and Gulf barrels loading outside Hormuz: term supply that keeps Japanese residue units full.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('dash-root');
+  root.style.setProperty('--jo-c0', dash.colors[0]);
+  root.style.setProperty('--jo-c1', dash.colors[1]);
+  root.style.setProperty('--jo-c2', dash.colors[2]);
+  root.style.setProperty('--jo-muted', 'var(--cds-chart-muted)');
+  const C0 = dash.colors[0], C1 = dash.colors[1], C2 = dash.colors[2], MUTED = 'var(--cds-chart-muted)';
+  const CAP = 'var(--cds-font-size-caption)';
+  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mo = m => MO[Number(m.slice(5, 7)) - 1];
+  const mlong = m => ['January','February','March','April','May','June','July','August','September','October','November','December'][Number(m.slice(5, 7)) - 1] + ' ' + m.slice(0, 4);
+  const fmt0 = d3.format(',.0f');
+  const sgn = (v, d = 1) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+
+  const failLine = (el, st) => {
+    if (st === 'error' || st === 'connect' || st === 'declined') el.innerHTML = '<div class="jo-fail"><span></span>Failed to load</div>';
+    else el.innerHTML = '';
+  };
+  const tipFor = (box) => {
+    let t = box.querySelector('.jo-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'jo-tip'; t.hidden = true; box.appendChild(t); }
+    return t;
+  };
+  const showTip = (box, t, head, lines, px, py) => {
+    t.replaceChildren();
+    const h = document.createElement('div'); h.className = 'd'; h.textContent = head; t.appendChild(h);
+    lines.forEach(s => { const d = document.createElement('div'); d.textContent = s; t.appendChild(d); });
+    t.hidden = false;
+    const bw = box.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+    let left = px + 12; if (left + tw > bw) left = px - tw - 12; if (left < 0) left = 0;
+    let top = py - th - 10; if (top < 0) top = py + 12;
+    t.style.left = left + 'px'; t.style.top = top + 'px';
+  };
+  const newSvg = (box, H) => {
+    box.replaceChildren();
+    const W = Math.max(280, box.clientWidth);
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    return { svg, W };
+  };
+  const measure = (svg, strings, size) => {
+    const g = svg.append('g').attr('visibility', 'hidden'); let mw = 0;
+    strings.forEach(s => { const n = g.append('text').style('font-size', size || CAP).text(s).node(); mw = Math.max(mw, n.getComputedTextLength()); });
+    g.remove(); return Math.ceil(mw);
+  };
+  const yGrid = (svg, y, x0, x1, ticks, fmt) => {
+    const g = svg.append('g');
+    g.selectAll('line').data(ticks).join('line').attr('x1', x0).attr('x2', x1).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    g.selectAll('text').data(ticks).join('text').attr('x', x0 - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(fmt);
+  };
+  const drawn = new Set();
+  const markDrawn = (box, k) => { if (!drawn.has(k)) { drawn.add(k); box.classList.add('drawn'); } };
+
+  // ---------- headline figures
+  const HFMT = {
+    data_through: v => mlong(String(v)),
+    crude_low_mbd: v => Number(v).toFixed(2), crude_2025_avg_mbd: v => Number(v).toFixed(2), crude_latest_mbd: v => Number(v).toFixed(2),
+    cif_peak_usd: v => Number(v).toFixed(0), cif_pre_crisis_usd: v => Number(v).toFixed(0), cif_latest_usd: v => Number(v).toFixed(0),
+    sales_chg_apr_aug_pct: v => sgn(Number(v)) + '%', stocks_aug_vs_avg_pct: v => sgn(Number(v)) + '%',
+    stocks_aug_mkl: v => Number(v).toFixed(2),
+    net_exports_2026_kbd: v => sgn(Number(v), 0), net_exports_2025_kbd: v => sgn(Number(v), 0),
+  };
+  function fillHeadline(Hd) {
+    document.querySelectorAll('#dash-root [data-source="headline"][data-field]').forEach(el => {
+      el.classList.toggle('dash-skeleton', Hd.status === 'loading');
+      if (Hd.status !== 'ok' || !Hd.data.length) { el.textContent = '—'; return; }
+      const f = el.dataset.field, v = Hd.data[0][f];
+      el.textContent = HFMT[f] ? HFMT[f](v) : fmt0(Number(v));
+    });
+  }
+
+  // ---------- crude chart
+  function crudeChart(D) {
+    const box = document.getElementById('chart-crude');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const rows = D.data.map(r => ({ m: String(r.month), v: Number(r.crude_mbd), p: Number(r.cif_usd_bbl), o: Number(r.product_output_kbd) / 1000 }));
+    const H = 400;
+    const { svg, W } = newSvg(box, H);
+    const ml = 40, mr = 44, t1 = 14, h1 = 190, t2 = 250, h2 = 110;
+    const x = d3.scaleBand(rows.map(r => r.m), [ml, W - mr]).paddingInner(0.22);
+    const yv = d3.scaleLinear([0, 3], [t1 + h1, t1]);
+    const yp = d3.scaleLinear([60, 125], [t2 + h2, t2]);
+    yGrid(svg, yv, ml, W - mr, [0, 1, 2, 3], d => d);
+    yGrid(svg, yp, ml, W - mr, [60, 80, 100, 120], d => '$' + d);
+    const hot = r => r.m === '2026-04' || r.m === '2026-05';
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', r => x(r.m)).attr('width', x.bandwidth()).attr('y', r => yv(r.v)).attr('height', r => yv(0) - yv(r.v)).attr('rx', 2)
+      .attr('fill', r => hot(r) ? C0 : MUTED);
+    const out = d3.line().x(r => x(r.m) + x.bandwidth() / 2).y(r => yv(r.o));
+    svg.append('path').datum(rows.filter(r => !isNaN(r.o))).attr('fill', 'none').attr('stroke', C2).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('d', out);
+    const pl = d3.line().x(r => x(r.m) + x.bandwidth() / 2).y(r => yp(r.p));
+    svg.append('path').datum(rows).attr('fill', 'none').attr('stroke', C1).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('d', pl);
+    const pk = rows.reduce((a, r) => r.p > a.p ? r : a);
+    const low = rows.reduce((a, r) => r.v < a.v ? r : a);
+    const last = rows.at(-1);
+    svg.append('text').attr('x', x(low.m) + x.bandwidth() / 2).attr('y', yv(low.v) - 6).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg)').style('font-size', '11px').text(low.v.toFixed(2));
+    svg.append('text').attr('x', x(pk.m) + x.bandwidth() / 2).attr('y', yp(pk.p) - 8).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg)').style('font-size', '11px').text('$' + pk.p.toFixed(0));
+    svg.append('text').attr('x', x(last.m) + x.bandwidth() + 4).attr('y', yp(last.p) + 4).attr('fill', 'var(--color-fg)').style('font-size', '11px').text('$' + last.p.toFixed(0));
+    svg.append('text').attr('x', ml).attr('y', t1 - 2).attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text('mb/d');
+    svg.append('text').attr('x', ml).attr('y', t2 - 8).attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text('CIF $/bbl');
+    const ticks = rows.filter(r => r.m.endsWith('-01') || r.m.endsWith('-07'));
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', r => x(r.m) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle')
+      .attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(r => mo(r.m) + " '" + r.m.slice(2, 4));
+    const t = tipFor(box);
+    svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', r => x(r.m)).attr('width', x.step()).attr('y', 0).attr('height', H - 24).attr('fill', 'transparent')
+      .on('mousemove', (ev, r) => showTip(box, t, mo(r.m) + ' ' + r.m.slice(0, 4), ['Crude imports ' + r.v.toFixed(2) + ' mb/d', 'CIF price $' + r.p.toFixed(2) + '/bbl', isNaN(r.o) ? '' : 'Product output ' + r.o.toFixed(2) + ' mb/d'].filter(Boolean), x(r.m), yv(r.v)))
+      .on('mouseleave', () => { t.hidden = true; });
+    markDrawn(box, 'crude');
+  }
+
+  // ---------- stockpile chart
+  function stockpileChart(D) {
+    const box = document.getElementById('chart-stockpile');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const rows = D.data.map(r => ({ m: String(r.month), h: r.holder, d: Number(r.days) }));
+    const months = [...new Set(rows.map(r => r.m))];
+    const order = ['Government', 'Private', 'Producer joint storage'];
+    const H = 300; const { svg, W } = newSvg(box, H);
+    const ml = 34, mr = 8, t0 = 18, hh = 240;
+    const x = d3.scaleBand(months, [ml, W - mr]).paddingInner(0.25);
+    const y = d3.scaleLinear([0, 300], [t0 + hh, t0]);
+    yGrid(svg, y, ml, W - mr, [0, 100, 200, 300], d => d);
+    const col = h => h === 'Government' ? C0 : MUTED, op = h => h === 'Producer joint storage' ? 0.45 : 1;
+    const t = tipFor(box);
+    months.forEach(m => {
+      let acc = 0;
+      order.forEach(h => {
+        const r = rows.find(q => q.m === m && q.h === h); if (!r) return;
+        svg.append('rect').attr('x', x(m)).attr('width', x.bandwidth()).attr('y', y(acc + r.d)).attr('height', y(acc) - y(acc + r.d)).attr('fill', col(h)).attr('fill-opacity', op(h));
+        acc += r.d;
+      });
+      if (m === '2026-03' || m === months.at(-1)) svg.append('text').attr('x', x(m) + x.bandwidth() / 2).attr('y', y(acc) - 5).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(acc);
+    });
+    ['2026-03', months.at(-1)].forEach(m => { const g = rows.find(q => q.m === m && q.h === 'Government'); svg.append('text').attr('x', x(m) + x.bandwidth() / 2).attr('y', y(g.d) + 14).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg)').style('font-size', '11px').style('font-weight', 600).text(g.d); });
+    svg.append('g').selectAll('text').data(months.filter(m => m.endsWith('-01') || m.endsWith('-07'))).join('text').attr('x', m => x(m) + x.bandwidth() / 2).attr('y', H - 10).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(m => mo(m) + " '" + m.slice(2, 4));
+    svg.append('g').selectAll('rect').data(months).join('rect').attr('x', m => x(m)).attr('width', x.step()).attr('y', t0).attr('height', hh).attr('fill', 'transparent')
+      .on('mousemove', (ev, m) => { const rs = order.map(h => rows.find(q => q.m === m && q.h === h)).filter(Boolean); showTip(box, t, mo(m) + ' ' + m.slice(0, 4), rs.map(r => r.h + ': ' + r.d + ' days').concat(['Total: ' + rs.reduce((s, r) => s + r.d, 0) + ' days']), x(m), y(150)); })
+      .on('mouseleave', () => { t.hidden = true; });
+    markDrawn(box, 'stock');
+  }
+
+  // ---------- demand chart
+  function demandChart(D) {
+    const box = document.getElementById('chart-demand');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const rows = D.data.map(r => ({ p: r.product, per: r.period, c: Number(r.change_pct), k: Number(r.fy2025_kbd) }));
+    const prods = [...new Set(rows.map(r => r.p))], pers = [...new Set(rows.map(r => r.per))];
+    const rh = 34, H = prods.length * rh + 10;
+    const { svg, W } = newSvg(box, H);
+    const lw = measure(svg, prods) + 10;
+    const x = d3.scaleLinear([-80, 18], [lw + 46, W - 44]);
+    svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 0).attr('y2', H).attr('stroke', 'var(--cds-chart-axis)');
+    const t = tipFor(box);
+    prods.forEach((p, i) => {
+      const y0 = i * rh + 4;
+      svg.append('text').attr('x', lw).attr('y', y0 + 15).attr('text-anchor', 'end').attr('fill', 'var(--color-fg)').style('font-size', '12px').style('font-weight', p.startsWith('All') ? 600 : 400).text(p);
+      pers.forEach((per, j) => {
+        const r = rows.find(q => q.p === p && q.per === per); if (!r) return;
+        const yy = y0 + j * 13, a = Math.min(x(0), x(r.c)), w = Math.abs(x(r.c) - x(0));
+        svg.append('rect').attr('x', a).attr('y', yy).attr('width', Math.max(w, 1)).attr('height', 11).attr('rx', 2).attr('fill', j === 0 ? MUTED : C0)
+          .on('mousemove', () => showTip(box, t, p, [per + ': ' + sgn(r.c) + '%', 'FY2025 sales: ' + fmt0(r.k) + ' kb/d'], a + w / 2, yy))
+          .on('mouseleave', () => { t.hidden = true; });
+        svg.append('text').attr('x', r.c < 0 ? a - 4 : a + w + 4).attr('y', yy + 9.5).attr('text-anchor', r.c < 0 ? 'end' : 'start').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(sgn(r.c) + '%');
+      });
+    });
+    markDrawn(box, 'demand');
+  }
+
+  // ---------- exports small multiples
+  function exportsChart(D) {
+    const box = document.getElementById('chart-exports');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const rows = D.data.map(r => ({ m: String(r.month), p: r.product, v: Number(r.exports_kbd) }));
+    const prods = [...new Set(rows.map(r => r.p))], months = [...new Set(rows.map(r => r.m))];
+    const Wb = Math.max(280, box.clientWidth), cols = Wb < 480 ? 1 : 2, rowsN = Math.ceil(prods.length / cols);
+    const ph = 100, gy = 44, H = rowsN * (ph + gy) + 6;
+    const { svg, W } = newSvg(box, H);
+    const gx = 44, pw = (W - 30 - (cols - 1) * gx - 30) / cols;
+    const xi = d3.scaleLinear([0, months.length - 1], [0, pw]), yv = d3.scaleLinear([0, 200], [ph, 0]);
+    const iA = months.indexOf('2026-04'), iM = months.indexOf('2026-05');
+    const t = tipFor(box);
+    prods.forEach((p, k) => {
+      const ox = 30 + (k % cols) * (pw + gx), oy = 22 + Math.floor(k / cols) * (ph + gy);
+      const g = svg.append('g').attr('transform', `translate(${ox},${oy})`);
+      const rs = rows.filter(r => r.p === p);
+      const accent = p === 'Gasoil' || p === 'Gasoline'; const c = accent ? C0 : MUTED;
+      g.append('text').attr('x', 0).attr('y', -8).attr('fill', 'var(--color-fg)').style('font-size', '12px').style('font-weight', 600).text(p);
+      if (iA >= 0) g.append('rect').attr('x', xi(iA) - 3).attr('y', 0).attr('width', xi(iM) - xi(iA) + 6).attr('height', ph).attr('fill', 'var(--cds-chart-reference)').attr('fill-opacity', 0.15);
+      [0, 100, 200].forEach(tk => { g.append('line').attr('x1', 0).attr('x2', pw).attr('y1', yv(tk)).attr('y2', yv(tk)).attr('stroke', 'var(--cds-chart-grid)'); g.append('text').attr('x', -5).attr('y', yv(tk) + 3).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', '9px').text(tk); });
+      g.append('path').datum(rs).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('d', d3.line().x((r, i) => xi(i)).y(r => yv(r.v)));
+      const lowR = rs.filter(r => r.m >= '2026-04' && r.m <= '2026-05').reduce((a, r) => r.v < a.v ? r : a, { v: Infinity });
+      if (lowR.m) g.append('text').attr('x', xi(months.indexOf(lowR.m))).attr('y', yv(lowR.v) + 14).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg)').style('font-size', '10px').text(lowR.v);
+      const last = rs.at(-1); g.append('text').attr('x', pw + 4).attr('y', yv(last.v) + 4).attr('fill', 'var(--color-fg)').style('font-size', '10px').text(last.v);
+      g.append('text').attr('x', 0).attr('y', ph + 12).attr('fill', 'var(--color-fg-muted)').style('font-size', '9px').text(mo(months[0]) + " '" + months[0].slice(2, 4));
+      g.append('text').attr('x', pw).attr('y', ph + 12).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', '9px').text(mo(months.at(-1)) + " '" + months.at(-1).slice(2, 4));
+      g.selectAll('rect.hit').data(rs).join('rect').attr('class', 'hit').attr('x', (r, i) => xi(i) - pw / months.length / 2).attr('width', pw / months.length).attr('y', 0).attr('height', ph).attr('fill', 'transparent')
+        .on('mousemove', (ev, r) => showTip(box, t, p + ', ' + mo(r.m) + ' ' + r.m.slice(0, 4), [r.v + ' kb/d exported'], ox + xi(months.indexOf(r.m)), oy + yv(r.v)))
+        .on('mouseleave', () => { t.hidden = true; });
+    });
+    markDrawn(box, 'exp');
+  }
+
+  // ---------- inventory chart
+  function stocksChart(D) {
+    const box = document.getElementById('chart-stocks');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const rows = D.data.map(r => ({ p: r.product, y: Number(r.year), v: Number(r.stock_mkl) }));
+    const prods = [...new Set(rows.map(r => r.p))];
+    const cy = d3.max(rows, r => r.y);
+    const rh = 36, H = prods.length * rh + 30;
+    const { svg, W } = newSvg(box, H);
+    const lw = measure(svg, prods) + 10;
+    const x = d3.scaleLinear([0.5, 2.75], [lw + 10, W - 90]);
+    [0.5, 1, 1.5, 2, 2.5].forEach(tk => { svg.append('line').attr('x1', x(tk)).attr('x2', x(tk)).attr('y1', 0).attr('y2', H - 22).attr('stroke', 'var(--cds-chart-grid)'); svg.append('text').attr('x', x(tk)).attr('y', H - 8).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(tk.toFixed(1)); });
+    const t = tipFor(box);
+    prods.forEach((p, i) => {
+      const rs = rows.filter(r => r.p === p), hist = rs.filter(r => r.y < cy), cur = rs.find(r => r.y === cy);
+      const mn = d3.min(hist, r => r.v), mx = d3.max(hist, r => r.v), avg = d3.mean(hist, r => r.v);
+      const yy = i * rh + 18, below = cur.v < mn, pct = (cur.v / avg - 1) * 100;
+      svg.append('text').attr('x', lw).attr('y', yy + 4).attr('text-anchor', 'end').attr('fill', 'var(--color-fg)').style('font-size', '12px').text(p);
+      svg.append('rect').attr('x', x(mn)).attr('y', yy - 5).attr('width', x(mx) - x(mn)).attr('height', 10).attr('rx', 5).attr('fill', MUTED).attr('fill-opacity', 0.6);
+      svg.append('line').attr('x1', x(avg)).attr('x2', x(avg)).attr('y1', yy - 9).attr('y2', yy + 9).attr('stroke', 'var(--color-fg)').attr('stroke-width', 2);
+      svg.append('circle').attr('cx', x(cur.v)).attr('cy', yy).attr('r', 6).attr('fill', C0).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5)
+        .on('mousemove', () => showTip(box, t, p, ['August ' + cy + ': ' + cur.v.toFixed(2) + ' m kl', `2017–${cy - 1} August range: ${mn.toFixed(2)}–${mx.toFixed(2)}`, 'Average: ' + avg.toFixed(2) + ' (' + sgn(pct, 0) + '%)'], x(cur.v), yy))
+        .on('mouseleave', () => { t.hidden = true; });
+      svg.append('text').attr('x', Math.max(x(mx), x(cur.v)) + 10).attr('y', yy + 4).attr('fill', below ? 'var(--color-fg)' : 'var(--color-fg-muted)').style('font-size', '11px').style('font-weight', below ? 600 : 400).text(cur.v.toFixed(2) + ' (' + sgn(pct, 0) + '%)');
+    });
+    markDrawn(box, 'stocks');
+  }
+
+  // ---------- tables
+  function tradeTable(D) {
+    const tb = document.querySelector('#trade-table tbody'); tb.replaceChildren();
+    if (D.status !== 'ok') return;
+    D.data.forEach(r => {
+      const tr = tb.insertRow(); if (String(r.product).startsWith('All')) tr.className = 'total';
+      tr.insertCell().textContent = r.product;
+      [['imports_2026_kbd', false], ['exports_2026_kbd', false], ['net_2026_kbd', true], ['net_2025_kbd', true]].forEach(([f, s]) => {
+        const td = tr.insertCell(); td.className = 'r'; const v = Number(r[f]);
+        td.textContent = s ? sgn(v, 0) : fmt0(v); if (s) td.classList.add(v >= 0 ? 'pos' : 'neg');
+      });
+    });
+  }
+  function capacityTable(D) {
+    const tb = document.querySelector('#capacity-table tbody'); tb.replaceChildren();
+    if (D.status !== 'ok') return;
+    const rs = D.data.slice().sort((a, b) => Number(b.capacity_bd) - Number(a.capacity_bd));
+    const mx = d3.max(rs, r => Number(r.capacity_bd));
+    const gcol = g => g === 'ENEOS' ? C0 : g === 'Idemitsu' ? C1 : MUTED;
+    rs.forEach(r => {
+      const tr = tb.insertRow();
+      tr.insertCell().textContent = r.refinery_id;
+      tr.insertCell().textContent = r.group;
+      tr.insertCell().textContent = r.area;
+      const td = tr.insertCell(); const w = document.createElement('div'); w.className = 'jo-bar';
+      const tk = document.createElement('div'); tk.className = 'track'; const f = document.createElement('div'); f.className = 'fill';
+      f.style.width = (Number(r.capacity_bd) / mx * 100) + '%'; f.style.background = gcol(r.group); tk.appendChild(f);
+      const v = document.createElement('span'); v.className = 'v'; v.textContent = fmt0(Number(r.capacity_bd));
+      w.append(tk, v); td.appendChild(w);
+    });
+  }
+
+  const drawOverview = () => {
+    const Hd = dash.data('headline');
+    fillHeadline(Hd);
+    [[crudeChart, 'crude_monthly'], [stockpileChart, 'stockpile_days'], [demandChart, 'sales_change'], [exportsChart, 'exports_monthly'], [stocksChart, 'stocks_august'], [tradeTable, 'net_trade'], [capacityTable, 'refining_capacity']]
+      .forEach(([fn, id]) => { try { fn(dash.data(id)); } catch (e) { console.error(id, e); } });
+  };
+  window.joDrawOverview = drawOverview;
+  dash.onData(() => { if (!document.getElementById('overview').hidden) drawOverview(); });
+})();
+</script>
+
+<script>
+dash.calc('range_stats', {
+  inputs: ['range_long'],
+  title: '2026 vs 2021–25 range',
+  description: 'For each series and month: the 2021–2025 minimum, maximum and average, the 2025 and 2026 values, and 2026 as a % difference from the average.',
+  fn: (range_long) => {
+    const m = new Map();
+    range_long.forEach((r) => {
+      const k = r.group + '|' + r.item + '|' + r.month;
+      if (!m.has(k)) m.set(k, { group: r.group, item: r.item, unit: r.unit, item_order: Number(r.item_order), month: Number(r.month), hist: [], v2025: null, v2026: null });
+      const o = m.get(k), y = Number(r.year), v = Number(r.value);
+      if (y === 2026) o.v2026 = v; else { o.hist.push(v); if (y === 2025) o.v2025 = v; }
+    });
+    return [...m.values()].filter((o) => o.hist.length).map((o) => {
+      const mn = Math.min(...o.hist), mx = Math.max(...o.hist), avg = o.hist.reduce((s, v) => s + v, 0) / o.hist.length;
+      return {
+        series: o.group + ' · ' + o.item, group: o.group, item: o.item, unit: o.unit, item_order: o.item_order, month: o.month,
+        min_2021_25: mn, max_2021_25: mx, avg_2021_25: avg, value_2025: o.v2025, value_2026: o.v2026,
+        vs_avg_pct: o.v2026 === null || avg === 0 ? null : (o.v2026 / avg - 1) * 100,
+        position: o.v2026 === null ? null : o.v2026 < mn ? 'below range' : o.v2026 > mx ? 'above range' : 'within range',
+      };
+    });
+  },
+});
+
+(() => {
+  const GROUPS = ['Crude & stockpiles', 'Production', 'Domestic sales', 'Imports', 'Exports', 'Inventories'];
+  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const C0 = dash.colors[0], C1 = dash.colors[1], MUTED = 'var(--cds-chart-muted)';
+  const sgn = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(0) + '%';
+  const fmtV = (v, unit) => v === null || v === undefined ? '—' : unit === 'million kl' ? v.toFixed(2) : unit === '$/bbl' ? '$' + v.toFixed(1) : Math.abs(v) >= 100 ? d3.format(',.0f')(v) : v.toFixed(1);
+  const pages = ['overview', 'range', 'sourcing', 'hedging'];
+  const tabs = [...document.querySelectorAll('.jo-tabs button')];
+
+  const tipFor = (box) => { let t = box.querySelector('.jo-tip'); if (!t) { t = document.createElement('div'); t.className = 'jo-tip'; t.hidden = true; box.appendChild(t); } return t; };
+  const showTip = (box, t, head, lines, px, py) => {
+    t.replaceChildren(); const h = document.createElement('div'); h.className = 'd'; h.textContent = head; t.appendChild(h);
+    lines.forEach((s) => { const d = document.createElement('div'); d.textContent = s; t.appendChild(d); });
+    t.hidden = false; const bw = box.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+    let left = px + 12; if (left + tw > bw) left = px - tw - 12; if (left < 0) left = 0;
+    let top = py - th - 10; if (top < 0) top = py + 12; t.style.left = left + 'px'; t.style.top = top + 'px';
+  };
+  const failLine = (el, st) => { if (st === 'error' || st === 'connect' || st === 'declined') el.innerHTML = '<div class="jo-fail"><span></span>Failed to load</div>'; else el.innerHTML = ''; };
+  const sortRows = (rows) => rows.slice().sort((a, b) => GROUPS.indexOf(a.group) - GROUPS.indexOf(b.group) || a.item_order - b.item_order || a.month - b.month);
+
+  function heatmap(S) {
+    const box = document.getElementById('chart-heatmap');
+    if (S.status !== 'ok') { failLine(box, S.status); return; }
+    const rows = sortRows(S.data.filter((r) => r.value_2026 !== null));
+    const series = [...new Set(rows.map((r) => r.series))];
+    const months = [...new Set(rows.map((r) => r.month))].sort((a, b) => a - b);
+    box.replaceChildren();
+    const W = Math.max(320, box.clientWidth), rh = 21, gh = 26, top0 = 22;
+    const groupsIn = GROUPS.filter((g) => rows.some((r) => r.group === g));
+    const H = top0 + series.length * rh + groupsIn.length * gh + 6;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const lw = Math.min(170, W * 0.36), cw = (W - lw - 4) / months.length;
+    months.forEach((mo, j) => svg.append('text').attr('x', lw + j * cw + cw / 2).attr('y', 14).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '11px').text(MO[mo - 1]));
+    const t = tipFor(box); let y = top0;
+    groupsIn.forEach((g) => {
+      svg.append('text').attr('x', 0).attr('y', y + 17).attr('fill', 'var(--color-fg)').style('font-size', '12px').style('font-weight', 600).text(g);
+      y += gh;
+      [...new Set(rows.filter((r) => r.group === g).map((r) => r.series))].forEach((se) => {
+        const rs = rows.filter((r) => r.series === se), it = rs[0];
+        svg.append('text').attr('x', 8).attr('y', y + 14).attr('fill', 'var(--color-fg)').style('font-size', '11px').text(it.item + ' (' + it.unit + ')');
+        rs.forEach((r) => {
+          const j = months.indexOf(r.month), x = lw + j * cw, dv = r.vs_avg_pct, out = r.position !== 'within range';
+          const op = dv === null ? 0 : Math.min(1, Math.abs(dv) / 40) * 0.85 + 0.08;
+          svg.append('rect').attr('x', x + 1).attr('y', y + 1).attr('width', cw - 2).attr('height', rh - 2).attr('rx', 2)
+            .attr('fill', dv >= 0 ? C0 : C1).attr('fill-opacity', op)
+            .attr('stroke', out ? 'var(--color-fg)' : 'none').attr('stroke-width', out ? 1.5 : 0)
+            .on('mousemove', (ev) => { const [px, py] = d3.pointer(ev, box); showTip(box, t, it.item + ', ' + MO[r.month - 1] + ' 2026', ['2026: ' + fmtV(r.value_2026, r.unit) + ' ' + r.unit, '2021–25 average: ' + fmtV(r.avg_2021_25, r.unit), '2021–25 range: ' + fmtV(r.min_2021_25, r.unit) + '–' + fmtV(r.max_2021_25, r.unit), 'vs average: ' + (dv === null ? '—' : sgn(dv)) + ' · ' + r.position], px, py); })
+            .on('mouseleave', () => { t.hidden = true; });
+          if (dv !== null && cw > 34) svg.append('text').attr('x', x + cw / 2).attr('y', y + 14).attr('text-anchor', 'middle').attr('pointer-events', 'none')
+            .attr('fill', Math.abs(dv) > 22 ? 'var(--color-bg)' : 'var(--color-fg)').style('font-size', '10px').style('font-weight', out ? 700 : 400).text(Math.abs(dv) >= 999 ? (dv > 0 ? '>+999%' : '<−999%') : sgn(dv));
+        });
+        y += rh;
+      });
+    });
+  }
+
+  function smallMultiples(S) {
+    const box = document.getElementById('chart-smallmult');
+    const group = dash.params().group || GROUPS[0];
+    document.getElementById('range-detail-title').textContent = 'Monthly detail: ' + group;
+    if (S.status !== 'ok') { failLine(box, S.status); return; }
+    const rows = sortRows(S.data.filter((r) => r.group === group));
+    const items = [...new Set(rows.map((r) => r.item))];
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), cols = W > 980 ? 4 : W > 700 ? 3 : W > 440 ? 2 : 1;
+    const gx = 48, gy = 54, ph = 120  /* gx leaves room for the next panel's title, which starts 30px left of its plot */, pw = (W - (cols - 1) * gx - 56) / cols;
+    const H = Math.ceil(items.length / cols) * (ph + gy) + 10;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const t = tipFor(box);
+    items.forEach((it, k) => {
+      const rs = rows.filter((r) => r.item === it).sort((a, b) => a.month - b.month), unit = rs[0].unit;
+      const ox = 36 + (k % cols) * (pw + gx), oy = 34 + Math.floor(k / cols) * (ph + gy);
+      const vals = rs.flatMap((r) => [r.min_2021_25, r.max_2021_25, r.value_2026, r.value_2025]).filter((v) => v !== null);
+      let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.12 || 1; lo = lo - pad; hi = hi + pad;
+      if (lo > 0 && lo < (hi - lo) * 0.6) lo = 0;
+      const x = d3.scaleLinear([1, 12], [0, pw]), y = d3.scaleLinear([lo, hi], [ph, 0]).nice();
+      const g = svg.append('g').attr('transform', `translate(${ox},${oy})`);
+      const cur = rs.filter((r) => r.value_2026 !== null), last = cur.at(-1);
+      g.append('text').attr('x', -30).attr('y', -18).attr('fill', 'var(--color-fg)').style('font-size', '12px').style('font-weight', 600).text(it);
+      if (last) g.append('text').attr('x', pw).attr('y', -18).attr('text-anchor', 'end').attr('fill', last.position === 'within range' ? 'var(--color-fg-muted)' : 'var(--color-fg)').style('font-size', '11px').style('font-weight', last.position === 'within range' ? 400 : 600).text(MO[last.month - 1] + ': ' + (last.vs_avg_pct === null ? '—' : sgn(last.vs_avg_pct)) + ' vs avg');
+      g.append('text').attr('x', -30).attr('y', -5).attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(unit);
+      y.ticks(3).forEach((tk) => { g.append('line').attr('x1', 0).attr('x2', pw).attr('y1', y(tk)).attr('y2', y(tk)).attr('stroke', 'var(--cds-chart-grid)'); g.append('text').attr('x', -4).attr('y', y(tk) + 3).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', '9px').text(d3.format('~s')(tk)); });
+      g.append('path').datum(rs).attr('fill', MUTED).attr('fill-opacity', 0.45).attr('d', d3.area().x((r) => x(r.month)).y0((r) => y(r.min_2021_25)).y1((r) => y(r.max_2021_25)));
+      g.append('path').datum(rs).attr('fill', 'none').attr('stroke', 'var(--color-fg-muted)').attr('stroke-width', 1.2).attr('stroke-dasharray', '4 3').attr('d', d3.line().x((r) => x(r.month)).y((r) => y(r.avg_2021_25)));
+      g.append('path').datum(rs.filter((r) => r.value_2025 !== null)).attr('fill', 'none').attr('stroke', MUTED).attr('stroke-width', 1.5).attr('d', d3.line().x((r) => x(r.month)).y((r) => y(r.value_2025)));
+      g.append('path').datum(cur).attr('fill', 'none').attr('stroke', C0).attr('stroke-width', 2.2).attr('stroke-linejoin', 'round').attr('d', d3.line().x((r) => x(r.month)).y((r) => y(r.value_2026)));
+      cur.forEach((r) => g.append('circle').attr('cx', x(r.month)).attr('cy', y(r.value_2026)).attr('r', r.position === 'within range' ? 2.5 : 3.5).attr('fill', r.position === 'within range' ? C0 : 'var(--color-panel)').attr('stroke', C0).attr('stroke-width', r.position === 'within range' ? 0 : 2));
+      [1, 4, 8, 12].forEach((mo) => g.append('text').attr('x', x(mo)).attr('y', ph + 13).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '9px').text(MO[mo - 1]));
+      g.selectAll('rect.hit').data(rs).join('rect').attr('class', 'hit').attr('x', (r) => x(r.month) - pw / 24).attr('width', pw / 12).attr('y', 0).attr('height', ph).attr('fill', 'transparent')
+        .on('mousemove', (ev, r) => showTip(box, t, it + ', ' + MO[r.month - 1], [(r.value_2026 === null ? '2026: not yet published' : '2026: ' + fmtV(r.value_2026, unit) + ' ' + unit + ' (' + sgn(r.vs_avg_pct) + ' vs avg)'), '2025: ' + fmtV(r.value_2025, unit), '2021–25 average: ' + fmtV(r.avg_2021_25, unit), '2021–25 range: ' + fmtV(r.min_2021_25, unit) + '–' + fmtV(r.max_2021_25, unit)], ox + x(r.month), oy + y(r.value_2026 ?? r.avg_2021_25)))
+        .on('mouseleave', () => { t.hidden = true; });
+    });
+  }
+
+  function chips() {
+    const wrap = document.getElementById('group-chips'), cur = dash.params().group || GROUPS[0];
+    if (!wrap.children.length) GROUPS.forEach((g) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = g; b.addEventListener('click', () => dash.setParams({ group: g })); wrap.appendChild(b); });
+    [...wrap.children].forEach((b) => b.setAttribute('aria-pressed', String(b.textContent === cur)));
+  }
+
+  function drawRange() { chips(); const S = dash.data('range_stats'); try { heatmap(S); } catch (e) { console.error(e); } try { smallMultiples(S); } catch (e) { console.error(e); } }
+
+  function show(id, link) {
+    pages.forEach((p) => { document.getElementById(p).hidden = p !== id; });
+    tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+    if (link) dash.setLink(id);
+    if (id === 'range') drawRange(); else if (id === 'sourcing') drawSourcing(); else if (id === 'hedging') { if (window.joDrawHedging) window.joDrawHedging(); } else if (window.joDrawOverview) window.joDrawOverview();
+  }
+  tabs.forEach((b) => b.addEventListener('click', () => show(b.dataset.tab, true)));
+  const start = location.hash.slice(1);
+  if (start === 'range' || start === 'sourcing' || start === 'hedging') show(start, false);
+  dash.onData(() => { if (!document.getElementById('range').hidden) drawRange(); if (!document.getElementById('sourcing').hidden) drawSourcing(); });
+
+  // ---------- crude sourcing page
+  function fillMarks(id) {
+    const D = dash.data(id);
+    document.querySelectorAll(`#sourcing [data-source="${id}"][data-field][data-where]`).forEach((el) => {
+      if (D.status !== 'ok') { el.textContent = '—'; return; }
+      const [k, v] = el.dataset.where.split('='); const r = D.data.find((q) => String(q[k]) === v);
+      const x = r ? Number(r[el.dataset.field]) : NaN; el.textContent = isNaN(x) ? '—' : (el.dataset.field.endsWith('pct') ? x.toFixed(1) : d3.format(',.0f')(x));
+    });
+  }
+  function originMonthly(D) {
+    const box = document.getElementById('chart-origin-monthly');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const all = D.data.map((r) => ({ p: String(r.period), t: r.total_kbd === null || r.total_kbd === '' ? null : Number(r.total_kbd), us: Number(r.us_kbd), me: r.middle_east_share_pct === null || r.middle_east_share_pct === '' ? null : Number(r.middle_east_share_pct) }));
+    const base = all.find((r) => r.t === null), rows = all.filter((r) => r.t !== null);
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), H = 300, ml = 44, mr = 10, t0 = 26, h = 230;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const x = d3.scaleBand(rows.map((r) => r.p), [ml, W - mr]).paddingInner(0.3), y = d3.scaleLinear([0, 3000], [t0 + h, t0]);
+    [0, 1000, 2000, 3000].forEach((tk) => { svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(tk)).attr('y2', y(tk)).attr('stroke', 'var(--cds-chart-grid)'); svg.append('text').attr('x', ml - 6).attr('y', y(tk) + 3).attr('text-anchor', 'end').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(d3.format(',')(tk)); });
+    const t = tipFor(box);
+    rows.forEach((r) => {
+      const bx = x(r.p), bw = x.bandwidth();
+      svg.append('rect').attr('x', bx).attr('width', bw).attr('y', y(r.t)).attr('height', y(0) - y(r.t)).attr('rx', 3).attr('fill', MUTED);
+      svg.append('rect').attr('x', bx).attr('width', bw).attr('y', y(r.us)).attr('height', y(0) - y(r.us)).attr('rx', 3).attr('fill', C0);
+      svg.append('text').attr('x', bx + bw / 2).attr('y', y(r.us) + 14).attr('text-anchor', 'middle').attr('fill', 'var(--color-bg)').style('font-size', '10px').style('font-weight', 600).text(r.us > 150 ? d3.format(',')(r.us) : '');
+      svg.append('text').attr('x', bx + bw / 2).attr('y', y(r.t) - 6).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg)').style('font-size', '11px').text(d3.format(',')(r.t) + (r.me !== null ? ' · ME ' + r.me.toFixed(0) + '%' : ''));
+      svg.append('text').attr('x', bx + bw / 2).attr('y', H - 10).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '11px').text(MO[Number(r.p.slice(5)) - 1] + ' ' + r.p.slice(0, 4));
+      svg.append('rect').attr('x', bx).attr('width', bw).attr('y', t0).attr('height', h).attr('fill', 'transparent')
+        .on('mousemove', (ev) => { const [px, py] = d3.pointer(ev, box); showTip(box, t, MO[Number(r.p.slice(5)) - 1] + ' ' + r.p.slice(0, 4), ['Total ' + d3.format(',')(r.t) + ' kb/d', 'United States ' + d3.format(',')(r.us) + ' kb/d', r.me !== null ? 'Middle East share ' + r.me + '%' : 'Middle East share not reported']); t.style.left = Math.min(px + 12, W - 180) + 'px'; t.style.top = (py - 40) + 'px'; })
+        .on('mouseleave', () => { t.hidden = true; });
+    });
+    if (base) { svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(base.us)).attr('y2', y(base.us)).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3'); svg.append('text').attr('x', ml + 4).attr('y', y(base.us) - 4).attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text('US, 2025 average: ' + base.us + ' kb/d'); }
+  }
+  const QCOL = (q) => q.startsWith('Light sweet') ? C0 : q.startsWith('Light sour') ? dash.colors[2] : q.startsWith('Medium sour') || q.startsWith('Medium to heavy') ? C1 : MUTED;
+  function originAug(D) {
+    const box = document.getElementById('chart-origin-aug'), lg = document.getElementById('quality-legend');
+    if (D.status !== 'ok') { failLine(box, D.status); return; }
+    const rows = D.data.map((r) => ({ c: r.country, k: Number(r.kbd), s: Number(r.share_pct), q: r.typical_crude_quality, rg: r.region })).sort((a, b) => b.k - a.k);
+    lg.replaceChildren(...[['Light sweet', C0], ['Light sour', dash.colors[2]], ['Medium/heavy sour', C1], ['Other or not reported', MUTED]].map(([n, c]) => { const sp = document.createElement('span'); const i = document.createElement('i'); i.style.background = c; sp.append(i, document.createTextNode(n)); return sp; }));
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), rh = 22, H = rows.length * rh + 8;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const lw = 92, x = d3.scaleLinear([0, d3.max(rows, (r) => r.k)], [lw, W - 90]);
+    const t = tipFor(box);
+    rows.forEach((r, i) => {
+      const yy = i * rh + 4;
+      svg.append('text').attr('x', lw - 6).attr('y', yy + 12).attr('text-anchor', 'end').attr('fill', 'var(--color-fg)').style('font-size', '11px').text(r.c);
+      svg.append('rect').attr('x', lw).attr('y', yy + 2).attr('width', Math.max(1, x(r.k) - lw)).attr('height', 14).attr('rx', 3).attr('fill', QCOL(r.q))
+        .on('mousemove', (ev) => { const [px, py] = d3.pointer(ev, box); showTip(box, t, r.c + ', August 2026', [d3.format(',')(r.k) + ' kb/d · ' + r.s + '% of imports', 'Typical quality: ' + r.q, 'Region: ' + r.rg], px, py); })
+        .on('mouseleave', () => { t.hidden = true; });
+      svg.append('text').attr('x', x(r.k) + 5).attr('y', yy + 13).attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(d3.format(',')(r.k) + ' (' + r.s + '%)');
+    });
+  }
+  function configTable(D) {
+    const tb = document.querySelector('#config-table tbody'); tb.replaceChildren();
+    if (D.status !== 'ok') return;
+    const mx = d3.max(D.data, (r) => Number(r.conversion_pct_of_cdu));
+    D.data.forEach((r) => {
+      const tr = tb.insertRow(); tr.insertCell().textContent = r.refinery;
+      ['cdu_bd', 'vacuum_bd', 'resid_desulf_bd', 'fcc_rfcc_bd', 'hydrocracker_bd'].forEach((f) => { const td = tr.insertCell(); td.className = 'r'; const v = Number(r[f]); td.textContent = v ? d3.format(',')(v) : '–'; });
+      const td = tr.insertCell(); const w = document.createElement('div'); w.className = 'jo-bar'; const tk = document.createElement('div'); tk.className = 'track'; const fl = document.createElement('div'); fl.className = 'fill'; fl.style.width = (Number(r.conversion_pct_of_cdu) / mx * 100) + '%'; fl.style.background = C0; tk.appendChild(fl); const v = document.createElement('span'); v.className = 'v'; v.textContent = Number(r.conversion_pct_of_cdu).toFixed(1) + '%'; w.append(tk, v); td.appendChild(w);
+      const tdr = tr.insertCell(); tdr.className = 'r'; tdr.textContent = Number(r.resid_desulf_pct_of_cdu).toFixed(1) + '%';
+      tr.insertCell().textContent = String(r.as_of).slice(0, 7);
+    });
+  }
+  function drawSourcing() {
+    fillMarks('crude_origin_monthly');
+    [[originMonthly, 'crude_origin_monthly'], [originAug, 'crude_origin_aug2026'], [configTable, 'refinery_config']].forEach(([fn, id]) => { try { fn(dash.data(id)); } catch (e) { console.error(id, e); } });
+  }
+})();
+</script>
+<script>
+(() => {
+  // ---------- US crude: products and hedging page
+  dash.calc('mix_change', {
+    title: 'Expected vs actual product mix change',
+    description: 'Change in each product group\'s share of output, percentage points: model (Aug 2026 slate minus 2025 slate) and PAJ actual (May–Aug 2026 minus May–Aug 2025).',
+    inputs: ['mix_check'],
+    fn: (mix_check) => mix_check.map((r) => ({
+      product_group: r.product_group,
+      expected_pts: Math.round((Number(r.model_aug2026_pct) - Number(r.model_2025_pct)) * 10) / 10,
+      actual_pts: Math.round((Number(r.actual_2026_pct) - Number(r.actual_2025_pct)) * 10) / 10
+    }))
+  });
+
+  const C = dash.colors, MUTED = 'var(--cds-chart-muted)';
+  const fail = (el, st) => { el.replaceChildren(); if (st === 'error' || st === 'connect' || st === 'declined' || st === 'missing') { const d = document.createElement('div'); d.className = 'jo-fail'; const s = document.createElement('span'); d.append(s, document.createTextNode('Failed to load')); el.appendChild(d); } };
+  const tip = (box) => { let t = box.querySelector('.jo-tip'); if (!t) { t = document.createElement('div'); t.className = 'jo-tip'; t.hidden = true; box.appendChild(t); } return t; };
+  const showTip = (box, t, head, lines, ev) => {
+    t.replaceChildren(); const h = document.createElement('div'); h.className = 'd'; h.textContent = head; t.appendChild(h);
+    lines.forEach((s) => { const d = document.createElement('div'); d.textContent = s; t.appendChild(d); });
+    t.hidden = false; const [px, py] = d3.pointer(ev, box);
+    t.style.left = Math.max(0, Math.min(px + 12, box.clientWidth - t.offsetWidth)) + 'px'; t.style.top = Math.max(0, py - t.offsetHeight - 8) + 'px';
+  };
+  const legend = (el, items) => el.replaceChildren(...items.map(([n, c]) => { const sp = document.createElement('span'); const i = document.createElement('i'); i.style.background = c; sp.append(i, document.createTextNode(n)); return sp; }));
+
+  function fill() {
+    document.querySelectorAll('#hedging [data-source][data-field]').forEach((el) => {
+      const D = dash.data(el.dataset.source); if (D.status !== 'ok') { el.textContent = '—'; return; }
+      let r;
+      if (el.dataset.where) { const [k, v] = el.dataset.where.split('='); r = D.data.find((q) => String(q[k]) === v); } else r = D.data[Number(el.dataset.row || 0)];
+      const x = r ? Number(r[el.dataset.field]) : NaN;
+      el.textContent = isNaN(x) ? '—' : (el.dataset.field.endsWith('pct') ? x.toFixed(1) : d3.format(',.0f')(x));
+    });
+  }
+
+  function gradeSlate() {
+    const box = document.getElementById('chart-grade-slate'), D = dash.data('grade_slate');
+    if (D.status !== 'ok') { fail(box, D.status); return; }
+    const P = ['LPG', 'Gasoline / naphtha', 'Jet / kerosene', 'Gasoil', 'Fuel oil', 'Fuel and loss'];
+    const PC = { 'LPG': C[4], 'Gasoline / naphtha': C[0], 'Jet / kerosene': C[2], 'Gasoil': C[3], 'Fuel oil': C[1], 'Fuel and loss': MUTED };
+    const rows = D.data.map((r) => ({ g: r.grade, p: r.product, v: Number(r.pct) }));
+    const grades = [...new Set(rows.map((r) => r.g))];
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), narrow = W < 520, lw = narrow ? 0 : 200, rowH = narrow ? 52 : 40, H = grades.length * rowH + 30;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const x = d3.scaleLinear([0, 100], [lw, W - 8]);
+    [0, 25, 50, 75, 100].forEach((tk) => { svg.append('text').attr('x', x(tk)).attr('y', H - 6).attr('text-anchor', tk === 0 ? 'start' : tk === 100 ? 'end' : 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text(tk + '%'); });
+    const t = tip(box);
+    grades.forEach((g, i) => {
+      const y0 = i * rowH + (narrow ? 18 : 6), bh = 22;
+      svg.append('text').attr('x', narrow ? 0 : lw - 8).attr('y', narrow ? y0 - 5 : y0 + bh / 2 + 4).attr('text-anchor', narrow ? 'start' : 'end').attr('fill', 'var(--color-fg)').style('font-size', '12px').style('font-weight', g.startsWith('WTI') ? 600 : 400).text(g);
+      let acc = 0; const tot = d3.sum(rows.filter((r) => r.g === g), (r) => r.v);
+      P.forEach((p) => {
+        const r = rows.find((q) => q.g === g && q.p === p); if (!r) return; const v = r.v / tot * 100;
+        svg.append('rect').attr('x', x(acc)).attr('width', Math.max(0, x(acc + v) - x(acc) - 1)).attr('y', y0).attr('height', bh).attr('fill', PC[p])
+          .on('mousemove', (ev) => showTip(box, t, g, P.map((pp) => { const q = rows.find((z) => z.g === g && z.p === pp); return pp + ': ' + (q ? q.v.toFixed(1) : '—') + '%'; }), ev)).on('mouseleave', () => { t.hidden = true; });
+        if (v >= 9) svg.append('text').attr('x', x(acc + v / 2)).attr('y', y0 + bh / 2 + 4).attr('text-anchor', 'middle').attr('fill', 'var(--color-bg)').style('font-size', '10px').style('font-weight', 600).style('pointer-events', 'none').text(Math.round(r.v));
+        acc += v;
+      });
+    });
+    legend(document.getElementById('grade-slate-legend'), P.map((p) => [p, PC[p]]));
+  }
+
+  function mixCheck() {
+    const box = document.getElementById('chart-mix-check'), D = dash.data('mix_change');
+    if (D.status !== 'ok') { fail(box, D.status); return; }
+    const rows = D.data;
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), narrow = W < 520, lw = narrow ? 0 : 150, grpH = narrow ? 70 : 56, H = rows.length * grpH + 26;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const ext = Math.max(1, d3.max(rows, (r) => Math.max(Math.abs(r.expected_pts), Math.abs(r.actual_pts)))) * 1.35;
+    const x = d3.scaleLinear([-ext, ext], [lw + 30, W - 34]);
+    x.ticks(5).forEach((tk) => { svg.append('line').attr('x1', x(tk)).attr('x2', x(tk)).attr('y1', 0).attr('y2', H - 20).attr('stroke', tk === 0 ? 'var(--cds-chart-axis)' : 'var(--cds-chart-grid)'); svg.append('text').attr('x', x(tk)).attr('y', H - 6).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', '10px').text((tk > 0 ? '+' : '') + tk); });
+    const t = tip(box);
+    rows.forEach((r, i) => {
+      const y0 = i * grpH + (narrow ? 20 : 8), bh = 15;
+      svg.append('text').attr('x', narrow ? 0 : lw).attr('y', narrow ? y0 - 6 : y0 + bh + 2).attr('fill', 'var(--color-fg)').style('font-size', '12px').text(r.product_group);
+      [['expected_pts', C[0], 'Expected (model)'], ['actual_pts', C[1], 'Actual (PAJ)']].forEach(([k, c, lab], j) => {
+        const v = r[k], yy = y0 + j * (bh + 3);
+        svg.append('rect').attr('x', Math.min(x(0), x(v))).attr('width', Math.max(1, Math.abs(x(v) - x(0)))).attr('y', yy).attr('height', bh).attr('rx', 3).attr('fill', c)
+          .on('mousemove', (ev) => showTip(box, t, r.product_group, ['Expected (model): ' + (r.expected_pts > 0 ? '+' : '') + r.expected_pts.toFixed(1) + ' pts', 'Actual (PAJ): ' + (r.actual_pts > 0 ? '+' : '') + r.actual_pts.toFixed(1) + ' pts'], ev)).on('mouseleave', () => { t.hidden = true; });
+        svg.append('text').attr('x', x(v) + (v >= 0 ? 4 : -4)).attr('y', yy + bh - 3).attr('text-anchor', v >= 0 ? 'start' : 'end').attr('fill', 'var(--color-fg)').style('font-size', '10px').text((v > 0 ? '+' : '') + v.toFixed(1));
+      });
+    });
+    legend(document.getElementById('mix-check-legend'), [['Expected from the crude switch (model)', C[0]], ['Actual change (PAJ refinery output)', C[1]]]);
+  }
+
+  function draw() { if (document.getElementById('hedging').hidden) return; fill(); try { gradeSlate(); } catch (e) { console.error(e); } try { mixCheck(); } catch (e) { console.error(e); } }
+  window.joDrawHedging = draw;
+  dash.onData(draw);
+})();
+</script>
+
+</main>
+
+<footer class="site-foot" id="sources">
+  <h2>Data sources</h2>
+  <ul class="src" id="src-list"></ul>
+  <div class="by">
+    <span>Built by Perion · last built 2026-10-28</span>
+    <span>Figures are fixed copies of the sources listed; model outputs are indicative.</span>
+    <button class="theme-btn" id="theme-btn" type="button">Switch theme</button>
+  </div>
+</footer>
+<script>
+(function () {
+  const ul = document.getElementById('src-list'), M = window.DASH_META || {};
+  Object.keys(M).sort((a, b) => M[a].title.localeCompare(M[b].title)).forEach((id) => {
+    const m = M[id], li = document.createElement('li'), b = document.createElement('b'), p = document.createElement('div'), a = document.createElement('a');
+    b.textContent = m.title; p.textContent = m.description;
+    a.href = m.file; a.textContent = 'Download ' + m.file.split('/').pop(); a.setAttribute('download', '');
+    li.append(b, p, a); ul.appendChild(li);
+  });
+  const btn = document.getElementById('theme-btn'), root = document.documentElement;
+  btn.addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+  });
+})();
+</script>
+</body>
+</html>

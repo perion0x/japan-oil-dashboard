@@ -1,0 +1,20 @@
+refinery_id,operator,refinery,group,area,capacity_bd
+ENEOS Mizushima,ENEOS,Mizushima,ENEOS,Seto Inland Sea,350200
+ENEOS Kawasaki,ENEOS,Kawasaki,ENEOS,Tokyo Bay,249100
+Showa Yokkaichi,Showa Yokkaichi Sekiyu,Yokkaichi,Idemitsu,Ise Bay,225000
+Cosmo Chiba,Cosmo Oil,Chiba,Cosmo,Tokyo Bay,214000
+Idemitsu Chiba,Idemitsu Kosan,Chiba,Idemitsu,Tokyo Bay,200000
+Kashima Kashima,Kashima Oil,Kashima,ENEOS,Kanto (Ibaraki),175000
+Idemitsu Aichi,Idemitsu Kosan,Aichi,Idemitsu,Ise Bay,163000
+Osaka Chiba,Osaka International Refining,Chiba,ENEOS,Tokyo Bay,155100
+ENEOS Negishi,ENEOS,Negishi,ENEOS,Tokyo Bay,153000
+ENEOS Sakai,ENEOS,Sakai,ENEOS,Osaka Bay,150000
+ENEOS Sendai,ENEOS,Sendai,ENEOS,Tohoku,145000
+Fuji Sodegaura,Fuji Oil,Sodegaura,Fuji Oil,Tokyo Bay,143000
+Idemitsu Hokkaido,Idemitsu Kosan,Hokkaido,Idemitsu,Hokkaido,140000
+Taiyo Shikoku,Taiyo Oil,Shikoku,Taiyo Oil,Seto Inland Sea,138000
+ENEOS Oita,ENEOS,Oita,ENEOS,Kyushu,136000
+ENEOS Marifu,ENEOS,Marifu,ENEOS,Seto Inland Sea,128000
+Cosmo Sakai,Cosmo Oil,Sakai,Cosmo,Osaka Bay,100000
+Cosmo Yokkaichi,Cosmo Oil,Yokkaichi,Cosmo,Ise Bay,86000
+Toa Keihin,Toa Oil,Keihin,Idemitsu,Tokyo Bay,60000
